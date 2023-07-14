@@ -1,7 +1,10 @@
 package it.polito.tdp.nyc;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
+
+import it.polito.tdp.nyc.model.EdgeModel;
 import it.polito.tdp.nyc.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -32,16 +35,16 @@ public class FXMLController {
     private Button btnCreaLista; // Value injected by FXMLLoader
 
     @FXML // fx:id="clPeso"
-    private TableColumn<?, ?> clPeso; // Value injected by FXMLLoader
+    private TableColumn<EdgeModel, Integer> clPeso; // Value injected by FXMLLoader
 
     @FXML // fx:id="clV1"
-    private TableColumn<?, ?> clV1; // Value injected by FXMLLoader
+    private TableColumn<EdgeModel, String> clV1; // Value injected by FXMLLoader
 
     @FXML // fx:id="clV2"
     private TableColumn<?, ?> clV2; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbBorough"
-    private ComboBox<?> cmbBorough; // Value injected by FXMLLoader
+    private ComboBox<String> cmbBorough; // Value injected by FXMLLoader
 
     @FXML // fx:id="tblArchi"
     private TableView<?> tblArchi; // Value injected by FXMLLoader
@@ -57,13 +60,20 @@ public class FXMLController {
 
     @FXML
     void doAnalisiArchi(ActionEvent event) {
-    	
 
+    	
+    	List<EdgeModel> archi = model.analisiArchi() ;
+    	for(EdgeModel a: archi) {
+    		txtResult.appendText(a.toString()+"\n");
+    	}
+
+    	
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-    	
+    	if(cmbBorough.getValue().length()!=0)
+    		this.model.BuildGraph(cmbBorough.getValue());
     }
 
     @FXML
@@ -90,6 +100,7 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.cmbBorough.getItems().addAll(this.model.allBorghi());
     }
 
 }

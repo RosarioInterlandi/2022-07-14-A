@@ -5,8 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import it.polito.tdp.nyc.model.Hotspot;
+import it.polito.tdp.nyc.model.Vertice;
 
 public class NYCDao {
 	
@@ -34,6 +38,63 @@ public class NYCDao {
 		}
 
 		return result;
+	}
+	public List<Vertice> getVertici(String borgo){
+		String sql = "SELECT distinct NTACode, SSID "
+				+ "FROM nyc_wifi_hotspot_locations "
+				+ "WHERE Borough= ? "
+				+ "ORDER BY NTACode ";
+		List<Vertice> result = new ArrayList<>();
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, borgo);
+			ResultSet res = st.executeQuery();
+			String lastNtaCode = "";
+
+			while (res.next()) {
+				if (!res.getString("NTACode").equals(lastNtaCode)) {
+					Set<String> ssid = new HashSet<>();
+					ssid.add(res.getString("SSID"));
+					Vertice NTA = new Vertice(res.getString("NTACode"),ssid );
+					result.add(NTA);
+					lastNtaCode = res.getString("NTACode");
+				}else {
+					result.get(result.size()-1).getSSID().add(res.getString("SSID"));
+				}
+				
+			}
+			
+			conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException("SQL Error");
+		}
+
+		return result;
+	}
+	
+	public List<String> allBorough(){	
+	String sql = "SELECT distinct Borough "
+			+ "FROM nyc_wifi_hotspot_locations "
+			+ "ORDER BY Borough ";
+	List<String> result = new ArrayList<>();
+	try {
+		Connection conn = DBConnect.getConnection();
+		PreparedStatement st = conn.prepareStatement(sql);
+		ResultSet res = st.executeQuery();
+
+		while (res.next()) {
+			result.add(res.getString("Borough"));
+		}
+		
+		conn.close();
+	} catch (SQLException e) {
+		e.printStackTrace();
+		throw new RuntimeException("SQL Error");
+	}
+
+	return result;
 	}
 	
 	
